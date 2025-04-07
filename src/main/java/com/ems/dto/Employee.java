@@ -36,7 +36,7 @@ public class Employee {
     private Department department;
 
     @NotNull(message = "salary is required")
-    private String salary;
+    private Double salary;
 
     @NotNull(message = "location is required")
     private String location;
@@ -45,7 +45,7 @@ public class Employee {
     }
 
     public Employee(int id, String firstName, String lastName, String email, String phone, LocalDate joiningDate,
-            Department department, String salary, String location) {
+            Department department, Double salary, String location) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -113,11 +113,11 @@ public class Employee {
         this.department = department;
     }
 
-    public String getSalary() {
+    public Double getSalary() {
         return salary;
     }
 
-    public void setSalary(String salary) {
+    public void setSalary(Double salary) {
         this.salary = salary;
     }
 
