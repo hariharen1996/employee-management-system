@@ -5,7 +5,7 @@ create table if not exists employees(
     email varchar(100) unique not null,
     phone varchar(11),
     joining_date date not null,
-    department varchar(20) not null,
+    department varchar(50) not null,
     salary decimal(10,2) not null,
     location varchar(50) not null,
     created_at timestamp default current_timestamp,
