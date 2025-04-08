@@ -27,5 +27,22 @@ public class EmployeeServiceImpl implements EmployeeService {
         List<Employee> employees = employeeDao.findAllEmployees();
         return employees;
     }
-    
+
+    @Override
+    public Employee getEmployeesById(int id) {
+        Employee employee = employeeDao.findById(id);
+        return employee;
+    }
+
+    @Override
+    public Employee getEmployeesByEmail(String email) {
+        Employee employee = employeeDao.findByEmail(email);
+        return employee;
+    }
+
+    @Override
+    public List<Employee> getEmployeesByDepartment(String department) {
+        List<Employee> employees = employeeDao.findByDepartment(department);
+        return employees;
+    }
 }
