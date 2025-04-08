@@ -15,4 +15,13 @@ public enum Department {
     public String getDepartmentName(){
         return departmentName;
     }
+
+    public static Department getEnum(String departmentName){
+        for(Department department: Department.values()){
+            if(department.getDepartmentName().equalsIgnoreCase(departmentName)){
+                return department;
+            }
+        }
+        throw new IllegalArgumentException("no enum constant for department name: " + departmentName);
+    }
 }

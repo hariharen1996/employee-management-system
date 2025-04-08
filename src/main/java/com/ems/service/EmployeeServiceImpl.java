@@ -1,5 +1,7 @@
 package com.ems.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.ems.dao.EmployeeDao;
@@ -18,6 +20,12 @@ public class EmployeeServiceImpl implements EmployeeService {
     public Employee createEmployee(Employee employee) {
         Employee insertEmployeeData = employeeDao.insert(employee);
         return insertEmployeeData;
+    }
+
+    @Override
+    public List<Employee> getAllEmployees() {
+        List<Employee> employees = employeeDao.findAllEmployees();
+        return employees;
     }
     
 }
