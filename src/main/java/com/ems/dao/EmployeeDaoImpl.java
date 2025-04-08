@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import com.ems.dto.Employee;
+import com.ems.utils.EmployeeResultSetExtractor;
 import com.ems.utils.EmployeeRowMapper;
 
 @Repository
@@ -29,6 +30,24 @@ public class EmployeeDaoImpl implements EmployeeDao {
     public List<Employee> findAllEmployees() {
         String sql = "select * from employees";
         return jdbcTemplate.query(sql, new EmployeeRowMapper());
+    }
+
+    @Override
+    public Employee findById(int id) {
+        String sql = "select * from employees where id = ?";
+        return jdbcTemplate.queryForObject(sql, new EmployeeRowMapper(),id);
+    }
+
+    @Override
+    public Employee findByEmail(String email) {
+        String sql = "select * from employees where email = ?";
+        return jdbcTemplate.query(sql, new EmployeeResultSetExtractor(),email);
+    }
+
+    @Override
+    public List<Employee> findByDepartment(String department) {
+        String sql = "select * from employees where department = ?";
+        return jdbcTemplate.query(sql, new EmployeeRowMapper(),department);    
     }
     
 }
