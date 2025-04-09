@@ -10,5 +10,7 @@ public interface EmployeeDao {
     Employee findById(int id);
     Employee findByEmail(String email);
     List<Employee> findByDepartment(String department);
+    boolean update(Employee employees);
+    boolean delete(int id);
 }
 
