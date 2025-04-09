@@ -81,5 +81,17 @@ public class EmployeeController {
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
+
+    @PostMapping("/create/bulk")
+    public ResponseEntity<Void> bulkCreateEmployees(@RequestBody List<Employee> employees){
+        employeeService.bulkCreateEmployees(employees);
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @PutMapping("/update/bulk")
+    public ResponseEntity<Void> bulkUpdateEmployees(@RequestBody List<Employee> employees){
+        employeeService.bulkUpdateEmployees(employees);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
     
 }

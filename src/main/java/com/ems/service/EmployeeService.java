@@ -12,4 +12,6 @@ public interface EmployeeService {
     List<Employee> getEmployeesByDepartment(String department);
     Employee updateEmployee(Employee employee);
     boolean deleteEmployee(int id);
+    void bulkCreateEmployees(List<Employee> employees);
+    void bulkUpdateEmployees(List<Employee> employees);
 }

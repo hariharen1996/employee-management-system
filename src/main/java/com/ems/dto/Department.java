@@ -1,7 +1,9 @@
 package com.ems.dto;
 
+import java.util.Arrays;
+
 public enum Department {
-    IT("Information Technology"),
+    INFORMATION_TECHNOLOGY("Information Technology"),
     MARKETING("Marketing"),
     FINANCE("Finance"),
     HR("Hr");
@@ -17,11 +19,8 @@ public enum Department {
     }
 
     public static Department getEnum(String departmentName){
-        for(Department department: Department.values()){
-            if(department.getDepartmentName().equalsIgnoreCase(departmentName)){
-                return department;
-            }
-        }
-        throw new IllegalArgumentException("no enum constant for department name: " + departmentName);
+        return Arrays.stream(values()).filter(d -> d.name().equalsIgnoreCase(departmentName) || 
+        d.departmentName.equalsIgnoreCase(departmentName))
+        .findFirst().orElseThrow(() -> new IllegalArgumentException("no enum constants for department: " + departmentName));
     }
 }

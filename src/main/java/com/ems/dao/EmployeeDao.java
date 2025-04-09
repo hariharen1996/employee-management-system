@@ -12,5 +12,7 @@ public interface EmployeeDao {
     List<Employee> findByDepartment(String department);
     boolean update(Employee employees);
     boolean delete(int id);
+    int[] batchInsert(List<Employee> employees);
+    int[] batchUpdates(List<Employee> employees);
 }
 
