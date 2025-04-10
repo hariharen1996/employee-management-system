@@ -1,7 +1,7 @@
 package com.ems.dao;
 
+import java.time.LocalDate;
 import java.util.List;
-
 import com.ems.dto.Employee;
 
 public interface EmployeeDao {
@@ -14,5 +14,7 @@ public interface EmployeeDao {
     boolean delete(int id);
     int[] batchInsert(List<Employee> employees);
     int[] batchUpdates(List<Employee> employees);
+    List<Employee> searchEmployees(String firstName, String lastName,LocalDate startDate,
+    LocalDate endDate,String location,Double minSalary,Double maxSalary,String phone);
 }
 

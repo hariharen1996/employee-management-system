@@ -14,3 +14,7 @@ create table if not exists employees(
 
 create index if not exists index_employees_department on employees(department);
 create index if not exists index_employees_joining_date on employees(joining_date);
+create index if not exists index_employees_names on employees(firstname,lastname);
+create index if not exists index_employees_salary on employees(salary);
+create index if not exists index_employees_location on employees(location);
+create unique index if not exists index_employees_phone on employees(phone)

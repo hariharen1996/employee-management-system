@@ -1,9 +1,13 @@
 package com.ems.dao;
 
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import com.ems.dto.Employee;
@@ -115,5 +119,55 @@ public class EmployeeDaoImpl implements EmployeeDao {
                 return employees.size();
             }
         });
+    }
+
+    @Override
+    public List<Employee> searchEmployees(String firstName, String lastName, LocalDate startDate, LocalDate endDate,
+            String location, Double minSalary, Double maxSalary,String phone) {
+        StringBuilder sql = new StringBuilder("select * from employees where 1 = 1");
+        List<Object> stmt =  new ArrayList<>();
+
+        if(firstName != null){
+            sql.append("and lower(firstname) like lower(?)");
+            stmt.add("%" + firstName + "%");
+        }
+
+        if(lastName != null){
+            sql.append("and lower(lastname) like lower(?)");
+            stmt.add("%" + lastName + "%");
+        }
+
+        if(startDate != null){
+            sql.append("and joining_date >= ?");
+            stmt.add(Date.valueOf(startDate));
+        }
+
+        if(endDate != null){
+            sql.append("and joining_date <= ?");
+            stmt.add(Date.valueOf(endDate));
+        }
+
+        if(location != null){
+            sql.append("and lower(location) like lower(?)");
+            stmt.add("%" + location + "%");
+        }
+
+        if(minSalary != null){
+            sql.append("and salary >= ?");
+            stmt.add(minSalary);
+        }
+
+        if(maxSalary != null){
+            sql.append("and salary <= ?");
+            stmt.add(maxSalary);
+        }
+
+        if(phone != null && !phone.trim().isEmpty()){
+            sql.append("and phone = ?");
+            stmt.add(phone.trim());
+        }
+        
+        return jdbcTemplate.query(sql.toString(), new BeanPropertyRowMapper<>(Employee.class),stmt.toArray());
+
     }
 }

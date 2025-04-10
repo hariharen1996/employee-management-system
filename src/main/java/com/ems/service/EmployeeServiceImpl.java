@@ -1,5 +1,6 @@
 package com.ems.service;
 
+import java.time.LocalDate;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -103,5 +104,13 @@ public class EmployeeServiceImpl implements EmployeeService {
     public void bulkUpdateEmployees(List<Employee> employees) {
         employeeDao.batchUpdates(employees);
         employees.forEach(cache::addCache);
+    }
+
+    @Override
+    public List<Employee> searchEmployees(String firstName, String lastName, LocalDate startDate, LocalDate endDate,
+            String location, Double minSalary, Double maxSalary,String phone) {
+        List<Employee> employees = employeeDao.searchEmployees(firstName, lastName, startDate, endDate, location, minSalary, maxSalary,phone);
+        cache.refreshCache(employees);
+        return employees;
     }
 }
