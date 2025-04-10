@@ -20,6 +20,8 @@ import com.ems.dto.Employee;
 import com.ems.exceptions.EmployeeCustomException;
 import com.ems.service.EmployeeService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/employees")
 public class EmployeeController {
@@ -30,7 +32,7 @@ public class EmployeeController {
     }
 
     @PostMapping
-    public ResponseEntity<Employee> createEmployee(@RequestBody Employee employee) {
+    public ResponseEntity<Employee> createEmployee(@RequestBody @Valid Employee employee) {
         Employee savedEmployee = employeeService.createEmployee(employee);
         return new ResponseEntity<>(savedEmployee, HttpStatus.CREATED);
     }
@@ -66,7 +68,7 @@ public class EmployeeController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Employee> updateEmployee(@PathVariable int id, @RequestBody Employee employee) {
+    public ResponseEntity<Employee> updateEmployee(@PathVariable int id, @RequestBody @Valid Employee employee) {
         if (id != employee.getId()) {
             throw new EmployeeCustomException("id should match the path");
         }
@@ -85,13 +87,13 @@ public class EmployeeController {
     }
 
     @PostMapping("/create/bulk")
-    public ResponseEntity<Void> bulkCreateEmployees(@RequestBody List<Employee> employees) {
+    public ResponseEntity<Void> bulkCreateEmployees(@RequestBody @Valid List<@Valid Employee> employees) {
         employeeService.bulkCreateEmployees(employees);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @PutMapping("/update/bulk")
-    public ResponseEntity<Void> bulkUpdateEmployees(@RequestBody List<Employee> employees) {
+    public ResponseEntity<Void> bulkUpdateEmployees(@RequestBody @Valid List<@Valid Employee> employees) {
         employeeService.bulkUpdateEmployees(employees);
         return new ResponseEntity<>(HttpStatus.OK);
     }

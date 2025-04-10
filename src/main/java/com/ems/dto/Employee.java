@@ -2,6 +2,10 @@ package com.ems.dto;
 
 import java.time.LocalDate;
 
+import com.ems.validations.ValidateEmail;
+import com.ems.validations.ValidateLocation;
+import com.ems.validations.ValidateSalary;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -23,6 +27,7 @@ public class Employee {
 
     @NotBlank(message = "email is required")
     @Email(message = "enter valid email")
+    @ValidateEmail(domainsAllowed = {"gmail.com"},message = "domain named as gmail are only allowed")
     private String email;
 
     @Pattern(regexp = "\\d{10}", message = "phonenumber must be in 10 digits")
@@ -36,9 +41,11 @@ public class Employee {
     private Department department;
 
     @NotNull(message = "salary is required")
+    @ValidateSalary(min = 5000.0,message = "salary must be atleast 5000")
     private Double salary;
 
     @NotNull(message = "location is required")
+    @ValidateLocation(message = "invalid location")
     private String location;
 
     public Employee() {
