@@ -1,10 +1,9 @@
 package com.ems.service;
 
 import java.util.List;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import com.ems.cache.EmployeeCache;
 import com.ems.dao.EmployeeDao;
 import com.ems.dto.Employee;
 import com.ems.exceptions.EmployeeCustomException;
@@ -14,9 +13,11 @@ import com.ems.exceptions.EmployeeCustomException;
 public class EmployeeServiceImpl implements EmployeeService {
 
     private final EmployeeDao employeeDao;
+    private final EmployeeCache cache;
 
-    public EmployeeServiceImpl(EmployeeDao employeeDao){
+    public EmployeeServiceImpl(EmployeeDao employeeDao,EmployeeCache cache){
         this.employeeDao = employeeDao;
+        this.cache = cache;
     }
 
     @Override
@@ -26,24 +27,40 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
         
         Employee insertEmployeeData = employeeDao.insert(employee);
+        cache.addCache(insertEmployeeData);
         return insertEmployeeData;
     }
 
     @Override
     public List<Employee> getAllEmployees() {
         List<Employee> employees = employeeDao.findAllEmployees();
+        cache.refreshCache(employees);
         return employees;
     }
 
     @Override
     public Employee getEmployeesById(int id) {
+        Employee cachedEmployee = cache.getFromCache(id);
+        if(cachedEmployee != null){
+            return cachedEmployee;
+        }
         Employee employee = employeeDao.findById(id);
+        if(employee != null){
+            cache.addCache(employee);
+        }
         return employee;
     }
 
     @Override
     public Employee getEmployeesByEmail(String email) {
+        Employee cachedEmployee = cache.getFromCache(email);
+        if(cachedEmployee != null){
+            return cachedEmployee;
+        }
         Employee employee = employeeDao.findByEmail(email);
+        if(employee != null){
+            cache.addCache(employee);
+        }
         return employee;
     }
 
@@ -61,6 +78,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         boolean isUpdated = employeeDao.update(employee);
         if(isUpdated){
+            cache.addCache(employee);
             return employee;   
         }
         throw new EmployeeCustomException("failed to update employee with id: " + employee.getId());
@@ -69,16 +87,21 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public boolean deleteEmployee(int id) {
         boolean deleted = employeeDao.delete(id);
+        if(deleted){
+            cache.removeFromCache(id);
+        }
         return deleted;
     }
 
     @Override
     public void bulkCreateEmployees(List<Employee> employees) {
         employeeDao.batchInsert(employees);
+        employees.forEach(cache::addCache);
     }
 
     @Override
     public void bulkUpdateEmployees(List<Employee> employees) {
         employeeDao.batchUpdates(employees);
+        employees.forEach(cache::addCache);
     }
 }
