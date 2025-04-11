@@ -27,7 +27,7 @@ public class Employee {
 
     @NotBlank(message = "email is required")
     @Email(message = "enter valid email")
-    @ValidateEmail(domainsAllowed = {"gmail.com"},message = "domain named as gmail are only allowed")
+    @ValidateEmail(domainsAllowed = {"gmail.com"},message = "domain named as 'gmail.com' are only allowed")
     private String email;
 
     @Pattern(regexp = "\\d{10}", message = "phonenumber must be in 10 digits")
@@ -45,7 +45,7 @@ public class Employee {
     private Double salary;
 
     @NotNull(message = "location is required")
-    @ValidateLocation(message = "invalid location")
+    @ValidateLocation(message = "These locations are only allowed - madurai,chennai,bengaluru,coimbatore,delhi,mumbai,hyderabad")
     private String location;
 
     public Employee() {
