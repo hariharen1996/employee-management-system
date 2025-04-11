@@ -25,8 +25,8 @@ public class EmployeeResultSetExtractor implements ResultSetExtractor<Employee> 
             employee.setSalary(rs.getDouble("salary"));
             employee.setLocation(rs.getString("location"));
 
-            String departmentName = rs.getNString("department");
-            employee.setDepartment(Department.getEnum(departmentName));
+            int departmentId = rs.getInt("department");
+            employee.setDepartment(Department.getById(departmentId));
             
             return employee;
         }
