@@ -20,7 +20,21 @@ create table if not exists employees(
     foreign key(department) references departments(id)
 );
 
-insert into departments (name) values ('Information Technology'),('Marketing'),('Finance'),('HR');
+insert into departments (name)
+select * from (select 'Information Technology' as name) as tmp
+where not exists (select 1 from departments where name = 'Information Technology');
+
+insert into departments (name)
+select * from (select 'Marketing' as name) as names
+where not exists (select 1 from departments where name = 'Marketing');
+
+insert into departments (name)
+select * from (select 'Finance' as name) as names
+where not exists (select 1 from departments where name = 'Finance');
+
+insert into departments (name)
+select * from (select 'HR' as name) as names
+where not exists (select 1 from departments where name = 'HR');
 
 create index if not exists index_employees_department on employees(department);
 create index if not exists index_employees_joining_date on employees(joining_date);

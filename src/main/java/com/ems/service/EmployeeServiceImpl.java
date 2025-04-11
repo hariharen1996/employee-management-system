@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.ems.cache.EmployeeCache;
 import com.ems.dao.EmployeeDao;
+import com.ems.dto.Department;
 import com.ems.dto.Employee;
 import com.ems.exceptions.EmployeeCustomException;
 
@@ -23,6 +24,8 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public Employee createEmployee(Employee employee) {
+        validateDepartment(employee.getDepartment());
+        
         if(employeeDao.findByEmail(employee.getEmail()) != null){
             throw new EmployeeCustomException("employee with this email " + employee.getEmail() + " already exists");
         }
@@ -67,8 +70,8 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public List<Employee> getEmployeesByDepartment(String department) {
-        List<Employee> employees = employeeDao.findByDepartment(department);
-        return employees;
+        Department departments = Department.getByName(department);
+        return employeeDao.findByDepartment(departments.getDepartmentName());
     }
 
     @Override
@@ -76,6 +79,8 @@ public class EmployeeServiceImpl implements EmployeeService {
         if(employee != null && employee.getId() == 0){
             throw new EmployeeCustomException("employee id cannot be null");         
         }
+
+        validateDepartment(employee.getDepartment());
 
         boolean isUpdated = employeeDao.update(employee);
         if(isUpdated){
@@ -96,12 +101,19 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public void bulkCreateEmployees(List<Employee> employees) {
+        employees.forEach(emp -> validateDepartment(emp.getDepartment()));
         employeeDao.batchInsert(employees);
         employees.forEach(cache::addCache);
     }
 
     @Override
     public void bulkUpdateEmployees(List<Employee> employees) {
+        employees.forEach(emp -> {
+            if(emp.getId() == 0){
+                throw new EmployeeCustomException("employee id cannot be null");
+            }
+            validateDepartment(emp.getDepartment());
+        });
         employeeDao.batchUpdates(employees);
         employees.forEach(cache::addCache);
     }
@@ -112,5 +124,17 @@ public class EmployeeServiceImpl implements EmployeeService {
         List<Employee> employees = employeeDao.searchEmployees(firstName, lastName, startDate, endDate, location, minSalary, maxSalary,phone);
         cache.refreshCache(employees);
         return employees;
+    }
+
+    public void validateDepartment(Department department){
+        if(department == null){
+            throw new EmployeeCustomException("department is required");
+        }
+
+        try{
+            Department.getById(department.getId());
+        }catch(IllegalArgumentException e){
+            throw new EmployeeCustomException("invalid department: " + e.getMessage());
+        }
     }
 }

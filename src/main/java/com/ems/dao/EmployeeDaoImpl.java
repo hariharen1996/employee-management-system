@@ -7,9 +7,10 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+
+import com.ems.dto.Department;
 import com.ems.dto.Employee;
 import com.ems.utils.EmployeeResultSetExtractor;
 import com.ems.utils.EmployeeRowMapper;
@@ -26,39 +27,40 @@ public class EmployeeDaoImpl implements EmployeeDao {
     @Override
     public Employee insert(Employee employee) {
         String sql = "insert into employees (firstname,lastname,email,phone,joining_date,department,salary,location) values(?,?,?,?,?,?,?,?)";
-        Object[] data = {employee.getFirstName(),employee.getLastName(),employee.getEmail(),employee.getPhone(),employee.getJoiningDate(),employee.getDepartment().getDepartmentName(),employee.getSalary(),employee.getLocation()};
+        Object[] data = {employee.getFirstName(),employee.getLastName(),employee.getEmail(),employee.getPhone(),employee.getJoiningDate(),employee.getDepartment().getId(),employee.getSalary(),employee.getLocation()};
         jdbcTemplate.update(sql, data);
         return employee;
     }
 
     @Override
     public List<Employee> findAllEmployees() {
-        String sql = "select * from employees";
+        String sql = "select e.*, d.name as department_name from employees e join departments d on e.department = d.id";
         return jdbcTemplate.query(sql, new EmployeeRowMapper());
     }
 
     @Override
     public Employee findById(int id) {
-        String sql = "select * from employees where id = ?";
+        String sql = "select e.*, d.name as department_name from employees e join departments d on e.department = d.id where e.id = ?";
         return jdbcTemplate.queryForObject(sql, new EmployeeRowMapper(),id);
     }
 
     @Override
     public Employee findByEmail(String email) {
-        String sql = "select * from employees where email = ?";
+        String sql = "select e.*, d.name as department_name from employees e join departments d on e.department = d.id where e.email = ?";
         return jdbcTemplate.query(sql, new EmployeeResultSetExtractor(),email);
     }
 
     @Override
     public List<Employee> findByDepartment(String department) {
-        String sql = "select * from employees where department = ?";
-        return jdbcTemplate.query(sql, new EmployeeRowMapper(),department);    
+        String departmentName = Department.getByName(department).getDepartmentName();
+        String sql = "select e.*, d.name as department_name from employees e join departments d on e.department = d.id where lower(d.name) = lower(?)";
+        return jdbcTemplate.query(sql, new EmployeeRowMapper(),departmentName);    
     }
 
     @Override
     public boolean update(Employee employee){
         String sql = "update employees set firstname = ?,lastname=?,email=?,phone=?,joining_date=?,department=?,salary=?,location=? where id = ?";
-        Object[] data = {employee.getFirstName(),employee.getLastName(),employee.getEmail(),employee.getPhone(),employee.getJoiningDate(),employee.getDepartment().getDepartmentName(),employee.getSalary(),employee.getLocation(),employee.getId()};
+        Object[] data = {employee.getFirstName(),employee.getLastName(),employee.getEmail(),employee.getPhone(),employee.getJoiningDate(),employee.getDepartment().getId(),employee.getSalary(),employee.getLocation(),employee.getId()};
         int updated = jdbcTemplate.update(sql,data);
         return updated == 1;
     }
@@ -84,7 +86,7 @@ public class EmployeeDaoImpl implements EmployeeDao {
                 ps.setString(3, employee.getEmail());
                 ps.setString(4, employee.getPhone());
                 ps.setObject(5, employee.getJoiningDate());
-                ps.setString(6, employee.getDepartment().name());
+                ps.setInt(6, employee.getDepartment().getId());
                 ps.setDouble(7, employee.getSalary());
                 ps.setString(8, employee.getLocation());
             }
@@ -108,7 +110,7 @@ public class EmployeeDaoImpl implements EmployeeDao {
                 ps.setString(3, employee.getEmail());
                 ps.setString(4, employee.getPhone());
                 ps.setObject(5, employee.getJoiningDate());
-                ps.setString(6, employee.getDepartment().name());
+                ps.setInt(6, employee.getDepartment().getId());
                 ps.setDouble(7, employee.getSalary());
                 ps.setString(8, employee.getLocation());
                 ps.setInt(9, employee.getId());
@@ -124,50 +126,50 @@ public class EmployeeDaoImpl implements EmployeeDao {
     @Override
     public List<Employee> searchEmployees(String firstName, String lastName, LocalDate startDate, LocalDate endDate,
             String location, Double minSalary, Double maxSalary,String phone) {
-        StringBuilder sql = new StringBuilder("select * from employees where 1 = 1");
+        StringBuilder sql = new StringBuilder("select e.*, d.name as department_name from employees e join departments d on e.department = d.id where 1 = 1");
         List<Object> stmt =  new ArrayList<>();
 
         if(firstName != null){
-            sql.append("and lower(firstname) like lower(?)");
+            sql.append("and lower(e.firstname) like lower(?)");
             stmt.add("%" + firstName + "%");
         }
 
         if(lastName != null){
-            sql.append("and lower(lastname) like lower(?)");
+            sql.append("and lower(e.lastname) like lower(?)");
             stmt.add("%" + lastName + "%");
         }
 
         if(startDate != null){
-            sql.append("and joining_date >= ?");
+            sql.append("and e.joining_date >= ?");
             stmt.add(Date.valueOf(startDate));
         }
 
         if(endDate != null){
-            sql.append("and joining_date <= ?");
+            sql.append("and e.joining_date <= ?");
             stmt.add(Date.valueOf(endDate));
         }
 
         if(location != null){
-            sql.append("and lower(location) like lower(?)");
+            sql.append("and lower(e.location) like lower(?)");
             stmt.add("%" + location + "%");
         }
 
         if(minSalary != null){
-            sql.append("and salary >= ?");
+            sql.append("and e.salary >= ?");
             stmt.add(minSalary);
         }
 
         if(maxSalary != null){
-            sql.append("and salary <= ?");
+            sql.append("and e.salary <= ?");
             stmt.add(maxSalary);
         }
 
         if(phone != null && !phone.trim().isEmpty()){
-            sql.append("and phone = ?");
+            sql.append("and e.phone = ?");
             stmt.add(phone.trim());
         }
         
-        return jdbcTemplate.query(sql.toString(), new BeanPropertyRowMapper<>(Employee.class),stmt.toArray());
+        return jdbcTemplate.query(sql.toString(), new EmployeeRowMapper(),stmt.toArray());
 
     }
 }
